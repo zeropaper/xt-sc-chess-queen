@@ -1,4 +1,6 @@
-var resemble = require('node-resemble-v2');
+const assert = require('assert');
+const fs = require('fs');
+const resemble = require('node-resemble-v2');
 
 function checkStyles(browser, key, shotsPath, tolerance = 15) {
   browser.windowHandleSize({
@@ -11,13 +13,13 @@ function checkStyles(browser, key, shotsPath, tolerance = 15) {
   }
   var screenshot = browser.saveScreenshot(shotsPath);
 
-  ressemble(screenshot).compareTo(fs.readFileSync('./verifShots/' + key + '.png')).onComplete(function(data) {
+  resemble(screenshot).compareTo(fs.readFileSync('./verifShots/' + key + '.png')).onComplete(function(data) {
     // console.info(data.rawMisMatchPercentage);
     assert(data.rawMisMatchPercentage <= tolerance);
   });
 }
 
-checkStyles.resolutions = {
+var resolutions = checkStyles.resolutions = {
   'ipad-portrait': [768, 1024],
   'ipad-landscape': [1024, 768],
   'galaxy-s5-portrait': [360, 640],
@@ -26,4 +28,4 @@ checkStyles.resolutions = {
   'iphone-6-landscape': [667, 375]
 };
 
-module.export = checkStyles;
+module.exports = checkStyles;
