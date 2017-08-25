@@ -1,6 +1,6 @@
 var resemble = require('node-resemble-v2');
 
-module.export = function(browser, key, shotsPath, tolerance = 15) {
+function checkStyles(browser, key, shotsPath, tolerance = 15) {
   browser.windowHandleSize({
     width: resolutions[key][0],
     height: resolutions[key][1]
@@ -15,9 +15,9 @@ module.export = function(browser, key, shotsPath, tolerance = 15) {
     // console.info(data.rawMisMatchPercentage);
     assert(data.rawMisMatchPercentage <= tolerance);
   });
-};
+}
 
-module.exports.resolutions = {
+checkStyles.resolutions = {
   'ipad-portrait': [768, 1024],
   'ipad-landscape': [1024, 768],
   'galaxy-s5-portrait': [360, 640],
@@ -25,3 +25,5 @@ module.exports.resolutions = {
   'iphone-6-portrait': [375, 667],
   'iphone-6-landscape': [667, 375]
 };
+
+module.export = checkStyles;
