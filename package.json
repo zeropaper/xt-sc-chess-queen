@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "name": "xt-sc-chess-queen",
+  "version": "1.0.0",
+  "description": "A repository to hold exercise screenshots for tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zeropaper/xt-sc-chess-queen.git"
+  },
+  "keywords": [
+    "exercise",
+    "verification"
+  ],
+  "author": "Valentin Vago <zeropaper@irata.ch>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zeropaper/xt-sc-chess-queen/issues"
+  },
+  "homepage": "https://github.com/zeropaper/xt-sc-chess-queen#readme",
+  "dependencies": {
+    "node-resemble-v2": "^1.0.0"
+  }
+}
