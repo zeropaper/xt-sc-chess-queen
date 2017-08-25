@@ -5,8 +5,12 @@ module.export = function(browser, key, shotsPath, tolerance = 15) {
     width: resolutions[key][0],
     height: resolutions[key][1]
   });
-  shotsPath = shotsPath ? shotsPath + '/' + key + '.png';
+
+  if (shotsPath) {
+    shotsPath = shotsPath + '/' + key + '.png';
+  }
   var screenshot = browser.saveScreenshot(shotsPath);
+
   ressemble(screenshot).compareTo(fs.readFileSync('./verifShots/' + key + '.png')).onComplete(function(data) {
     // console.info(data.rawMisMatchPercentage);
     assert(data.rawMisMatchPercentage <= tolerance);
