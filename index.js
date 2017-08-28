@@ -11,29 +11,29 @@ function writeFile(destination, data) {
   fs.writeFileSync(destination, data);
 }
 
-var htmlFile;
-function checkStyles(browser, key, testName, shotsPath, tolerance = 5) {
+
+function checkStyles(browser, key, testName, shotsPath, tolerance = 5, timeout = 0) {
   browser.windowHandleSize({
     width: resolutions[key][0],
     height: resolutions[key][1]
   });
+
   var baseFilename = [testName, key].filter(v => !!v).join('--');
   var baseline = readFile(__dirname + '/sc/' + baseFilename + '.png');
 
   if (shotsPath) {
-    if (!htmlFile) {
-      var images = Object.keys(resolutions)
-                    .map(r => (testName ? testName + '--' : '') + r);
-      htmlFile = readFile(__dirname + '/index.html').toString()
-        .split('var images = [];')
-        .join('var images = ' + JSON.stringify(images) + ';');
-    }
+    var images = Object.keys(resolutions)
+                  .map(r => (testName ? testName + '--' : '') + r);
+    htmlFile = readFile(__dirname + '/index.html').toString()
+      .split('var images = [];')
+      .join('var images = ' + JSON.stringify(images) + ';');
     writeFile(shotsPath + '/' + (testName || 'index') + '.html', htmlFile);
     writeFile(shotsPath + '/bl-' + baseFilename + '.png', baseline);
     shotsPath = shotsPath + '/' + baseFilename + '.png';
   }
-  var screenshot = browser.saveScreenshot(shotsPath);
 
+  if(timeout) browser.pause(timeout);
+  var screenshot = browser.saveScreenshot(shotsPath);
 
   resemble(screenshot).compareTo(baseline).onComplete(function(data) {
     if (data.rawMisMatchPercentage > tolerance) {
