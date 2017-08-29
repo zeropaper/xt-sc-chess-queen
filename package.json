@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "xt-sc-chess-queen",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A repository to hold exercise screenshots for tests",
   "main": "index.js",
   "scripts": {
