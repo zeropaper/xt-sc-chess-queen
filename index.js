@@ -1,6 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const resemble = require('node-resemble-v2');
+const saveBaseline = !!process.env.TEST_SAVE_BASELINE;
 
 const readFile = fs.readFileSync;
 function writeFile(destination, data) {
@@ -19,27 +20,34 @@ function checkStyles(browser, key, testName, shotsPath, tolerance = 5, timeout =
   });
 
   var baseFilename = [testName, key].filter(v => !!v).join('--');
-  var baseline = readFile(__dirname + '/sc/' + baseFilename + '.png');
-
-  if (shotsPath) {
-    var images = Object.keys(resolutions)
-                  .map(r => (testName ? testName + '--' : '') + r);
-    htmlFile = readFile(__dirname + '/index.html').toString()
-      .split('var images = [];')
-      .join('var images = ' + JSON.stringify(images) + ';');
-    writeFile(shotsPath + '/' + (testName || 'index') + '.html', htmlFile);
-    writeFile(shotsPath + '/bl-' + baseFilename + '.png', baseline);
-    shotsPath = shotsPath + '/' + baseFilename + '.png';
+  var baselineFilename = __dirname + '/sc/' + baseFilename + '.png';
+  if (saveBaseline) {
+    if(timeout) browser.pause(timeout);
+    browser.saveScreenshot(baselineFilename);
   }
+  else {
+    var baseline = readFile(baselineFilename);
 
-  if(timeout) browser.pause(timeout);
-  var screenshot = browser.saveScreenshot(shotsPath);
-
-  resemble(screenshot).compareTo(baseline).onComplete(function(data) {
-    if (data.rawMisMatchPercentage > tolerance) {
-      throw new Error('The ' + data.misMatchPercentage + '% mismatching exceeds the ' + tolerance + '% tolerance');
+    if (shotsPath) {
+      var images = Object.keys(resolutions)
+                    .map(r => (testName ? testName + '--' : '') + r);
+      htmlFile = readFile(__dirname + '/index.html').toString()
+        .split('var images = [];')
+        .join('var images = ' + JSON.stringify(images) + ';');
+      writeFile(shotsPath + '/' + (testName || 'index') + '.html', htmlFile);
+      writeFile(shotsPath + '/bl-' + baseFilename + '.png', baseline);
+      shotsPath = shotsPath + '/' + baseFilename + '.png';
     }
-  });
+
+    if(timeout) browser.pause(timeout);
+    var screenshot = browser.saveScreenshot(shotsPath);
+
+    resemble(screenshot).compareTo(baseline).onComplete(function(data) {
+      if (data.rawMisMatchPercentage > tolerance) {
+        throw new Error('The ' + data.misMatchPercentage + '% mismatching exceeds the ' + tolerance + '% tolerance');
+      }
+    });
+  }
 }
 
 var resolutions = checkStyles.resolutions = {
