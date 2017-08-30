@@ -1,4 +1,3 @@
-const assert = require('assert');
 const fs = require('fs');
 const resemble = require('node-resemble-v2');
 const saveBaseline = !!process.env.TEST_SAVE_BASELINE;
@@ -7,7 +6,7 @@ const readFile = fs.readFileSync;
 function writeFile(destination, data) {
   try {
     fs.unlinkSync(destination);
-  } catch(_) {}
+  } catch(up) {/* vale ist ne dreck sau */}
 
   fs.writeFileSync(destination, data);
 }
@@ -24,30 +23,30 @@ function checkStyles(browser, key, testName, shotsPath, tolerance = 5, timeout =
   if (saveBaseline) {
     if(timeout) browser.pause(timeout);
     browser.saveScreenshot(baselineFilename);
+    return;
   }
-  else {
-    var baseline = readFile(baselineFilename);
 
-    if (shotsPath) {
-      var images = Object.keys(resolutions)
-                    .map(r => (testName ? testName + '--' : '') + r);
-      htmlFile = readFile(__dirname + '/index.html').toString()
-        .split('var images = [];')
-        .join('var images = ' + JSON.stringify(images) + ';');
-      writeFile(shotsPath + '/' + (testName || 'index') + '.html', htmlFile);
-      writeFile(shotsPath + '/bl-' + baseFilename + '.png', baseline);
-      shotsPath = shotsPath + '/' + baseFilename + '.png';
+  var baseline = readFile(baselineFilename);
+
+  if (shotsPath) {
+    var images = Object.keys(resolutions)
+                  .map(r => (testName ? testName + '--' : '') + r);
+    htmlFile = readFile(__dirname + '/index.html').toString()
+      .split('var images = [];')
+      .join('var images = ' + JSON.stringify(images) + ';');
+    writeFile(shotsPath + '/' + (testName || 'index') + '.html', htmlFile);
+    writeFile(shotsPath + '/bl-' + baseFilename + '.png', baseline);
+    shotsPath = shotsPath + '/' + baseFilename + '.png';
+  }
+
+  if(timeout) browser.pause(timeout);
+  var screenshot = browser.saveScreenshot(shotsPath);
+
+  resemble(screenshot).compareTo(baseline).onComplete(function(data) {
+    if (data.rawMisMatchPercentage > tolerance) {
+      throw new Error('The ' + data.misMatchPercentage + '% mismatching exceeds the ' + tolerance + '% tolerance');
     }
-
-    if(timeout) browser.pause(timeout);
-    var screenshot = browser.saveScreenshot(shotsPath);
-
-    resemble(screenshot).compareTo(baseline).onComplete(function(data) {
-      if (data.rawMisMatchPercentage > tolerance) {
-        throw new Error('The ' + data.misMatchPercentage + '% mismatching exceeds the ' + tolerance + '% tolerance');
-      }
-    });
-  }
+  });
 }
 
 var resolutions = checkStyles.resolutions = {
